@@ -231,4 +231,30 @@ class SettingsViewModel @Inject constructor(
     fun clearSavedFlag() {
         _uiState.update { it.copy(isSaved = false) }
     }
+
+    /**
+     * 通知権限のリクエストを開始
+     */
+    fun requestNotificationPermission() {
+        _uiState.update { it.copy(showNotificationPermissionRationale = true) }
+    }
+
+    /**
+     * 通知権限リクエストの結果を処理
+     */
+    fun onNotificationPermissionResult(granted: Boolean) {
+        _uiState.update {
+            it.copy(
+                showNotificationPermissionRationale = false,
+                notificationPermissionGranted = granted
+            )
+        }
+    }
+
+    /**
+     * 通知権限の状態通知をクリア
+     */
+    fun clearNotificationPermissionStatus() {
+        _uiState.update { it.copy(notificationPermissionGranted = null) }
+    }
 }

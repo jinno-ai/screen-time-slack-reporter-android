@@ -23,27 +23,27 @@ class SendDailyReportUseCase @Inject constructor(
      * @return 送信結果
      */
     suspend operator fun invoke(): SendResult {
-        val settings = settingsRepository.settingsFlow.first()
-
-        if (!settings.isWebhookConfigured) {
-            return SendResult(
-                status = SendStatus.FAILED,
-                errorMessage = "Webhook URLが設定されていません"
-            )
-        }
-
-        val allUsage = getTodayUsageUseCase()
-
-        // 除外適用
-        val filteredUsage = allUsage.filter { usage ->
-            usage.packageName !in settings.excludedPackages
-        }
-
-        // メッセージ生成
-        val message = slackMessageBuilder.build(filteredUsage)
-
-        // Slack送信
         return try {
+            val settings = settingsRepository.settingsFlow.first()
+
+            if (!settings.isWebhookConfigured) {
+                return SendResult(
+                    status = SendStatus.FAILED,
+                    errorMessage = "Webhook URLが設定されていません"
+                )
+            }
+
+            val allUsage = getTodayUsageUseCase()
+
+            // 除外適用
+            val filteredUsage = allUsage.filter { usage ->
+                usage.packageName !in settings.excludedPackages
+            }
+
+            // メッセージ生成
+            val message = slackMessageBuilder.build(filteredUsage)
+
+            // Slack送信
             val result = slackRepository.sendMessage(settings.webhookUrl, message)
             if (result.isSuccess) {
                 val now = System.currentTimeMillis()

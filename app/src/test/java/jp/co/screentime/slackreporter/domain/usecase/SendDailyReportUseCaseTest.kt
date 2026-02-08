@@ -137,4 +137,34 @@ class SendDailyReportUseCaseTest {
         assertEquals(SendStatus.FAILED, result.status)
         assertNotNull(result.errorMessage)
     }
+
+    @Test
+    fun `returns FAILED when exception is thrown during execution`() = runTest {
+        val settingsRepository = mockk<SettingsRepository>()
+        val slackRepository = mockk<SlackRepository>()
+        val slackMessageBuilder = mockk<SlackMessageBuilder>()
+        val getTodayUsageUseCase = mockk<GetTodayUsageUseCase>()
+
+        val settings = mockk<AppSettings> {
+            every { isWebhookConfigured } returns true
+            every { webhookUrl } returns "https://hooks.slack.com/services/xxx"
+            every { excludedPackages } returns emptySet()
+        }
+        every { settingsRepository.settingsFlow } returns flowOf(settings)
+        coEvery { getTodayUsageUseCase.invoke() } throws RuntimeException("Unexpected error")
+        coEvery { settingsRepository.updateSendResult(any(), any(), any()) } just Runs
+
+        val useCase = SendDailyReportUseCase(
+            getTodayUsageUseCase,
+            settingsRepository,
+            slackRepository,
+            slackMessageBuilder
+        )
+
+        val result = useCase()
+
+        assertEquals(SendStatus.FAILED, result.status)
+        assertEquals("Unexpected error", result.errorMessage)
+        coVerify { settingsRepository.updateSendResult(SendStatus.FAILED, null, "Unexpected error") }
+    }
 }

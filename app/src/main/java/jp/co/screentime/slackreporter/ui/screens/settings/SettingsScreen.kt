@@ -52,8 +52,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.Manifest
+import android.os.Build
 import jp.co.screentime.slackreporter.R
 import jp.co.screentime.slackreporter.presentation.settings.SettingsViewModel
 import jp.co.screentime.slackreporter.presentation.settings.TestResult
@@ -71,6 +75,28 @@ fun SettingsScreen(
 
     var showWebhookUrl by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
+
+    // 通知権限リクエストランチャー
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        viewModel.onNotificationPermissionResult(granted)
+    }
+
+    // 通知権限の結果スナックバー
+    LaunchedEffect(uiState.notificationPermissionGranted) {
+        when (uiState.notificationPermissionGranted) {
+            true -> {
+                snackbarHostState.showSnackbar(context.getString(R.string.settings_notification_permission_granted))
+                viewModel.clearNotificationPermissionStatus()
+            }
+            false -> {
+                snackbarHostState.showSnackbar(context.getString(R.string.settings_notification_permission_denied))
+                viewModel.clearNotificationPermissionStatus()
+            }
+            null -> {}
+        }
+    }
 
     // テスト結果のスナックバー
     LaunchedEffect(uiState.testResult) {
@@ -146,7 +172,12 @@ fun SettingsScreen(
                     onSendTimeClick = { showTimePicker = true },
                     onSaveSettings = viewModel::onSaveSettings,
                     onTestWebhook = viewModel::onClickTestWebhook,
-                    onOpenSlackDeveloperPage = onOpenSlackDeveloperPage
+                    onOpenSlackDeveloperPage = onOpenSlackDeveloperPage,
+                    onRequestNotificationPermission = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
                 )
             }
         }
@@ -163,7 +194,8 @@ private fun SettingsContent(
     onSendTimeClick: () -> Unit,
     onSaveSettings: () -> Unit,
     onTestWebhook: () -> Unit,
-    onOpenSlackDeveloperPage: () -> Unit
+    onOpenSlackDeveloperPage: () -> Unit,
+    onRequestNotificationPermission: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -322,6 +354,35 @@ private fun SettingsContent(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                }
+            }
+        }
+
+        // 通知権限 (API 33+)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_notification_title),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(R.string.settings_notification_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedButton(
+                        onClick = onRequestNotificationPermission,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.settings_notification_request))
+                    }
                 }
             }
         }

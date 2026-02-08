@@ -41,6 +41,11 @@
     <string name="settings_webhook_not_set">テスト送信するには、Webhook URLを先に設定してください</string>
     <string name="settings_saved">変更を保存しました</string>
     <string name="settings_save">変更を保存</string>
+    <string name="settings_notification_title">通知権限</string>
+    <string name="settings_notification_description">エラー通知を受け取るには通知権限が必要です</string>
+    <string name="settings_notification_request">権限をリクエスト</string>
+    <string name="settings_notification_permission_granted">通知権限が許可されました</string>
+    <string name="settings_notification_permission_denied">通知権限が拒否されました。設定アプリから手動で許可してください</string>
     <string name="settings_time_picker_title">送信時刻の選択</string>
     <string name="settings_time_picker_hour">時</string>
     <string name="settings_time_picker_minute">分</string>

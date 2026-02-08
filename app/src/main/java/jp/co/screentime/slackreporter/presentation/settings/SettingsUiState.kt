@@ -15,6 +15,8 @@ data class SettingsUiState(
     val testResult: TestResult? = null,
     val isSaved: Boolean = false,
     val webhookError: String? = null,
+    val showNotificationPermissionRationale: Boolean = false,
+    val notificationPermissionGranted: Boolean? = null,
 
     // 初期値
     val initialWebhookUrl: String = "",
