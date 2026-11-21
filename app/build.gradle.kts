@@ -65,7 +65,7 @@ android {
         // version skew between AGP 8.7 lint and the detector jars).
         // The project does not use MutableLiveData so the check is
         // inapplicable anyway.
-        disable += setOf("NonNullableMutableLiveData", "FrequentlyChangingValue")
+        disable += setOf("NullSafeMutableLiveData", "RememberInComposition")
     }
 }
 
