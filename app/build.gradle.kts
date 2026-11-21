@@ -60,10 +60,12 @@ android {
     }
 
     lint {
-        // Bundled androidx lint detector crashes with
-        // IncompatibleClassChangeError on this codebase; the project does
-        // not use MutableLiveData so the check is inapplicable anyway.
-        disable += "NonNullMutableLiveData"
+        // Bundled androidx/compose lint detectors crash with
+        // IncompatibleClassChangeError under K2 UAST (analysis-api
+        // version skew between AGP 8.7 lint and the detector jars).
+        // The project does not use MutableLiveData so the check is
+        // inapplicable anyway.
+        disable += setOf("NonNullableMutableLiveData", "FrequentlyChangingValue")
     }
 }
 
