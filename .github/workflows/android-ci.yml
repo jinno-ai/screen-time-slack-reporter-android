@@ -111,7 +111,7 @@ jobs:
       run: chmod +x gradlew
     
     - name: Run Core Function Verification
-      run: ./gradlew test --tests "*CoreFunctionVerificationTest" --no-daemon
+      run: ./gradlew testDebugUnitTest --tests "*CoreFunctionVerificationTest" --no-daemon
     
     - name: Upload Verification Report
       uses: actions/upload-artifact@v4

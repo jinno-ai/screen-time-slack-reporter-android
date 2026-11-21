@@ -58,6 +58,13 @@ android {
             }
         }
     }
+
+    lint {
+        // Bundled androidx lint detector crashes with
+        // IncompatibleClassChangeError on this codebase; the project does
+        // not use MutableLiveData so the check is inapplicable anyway.
+        disable += "NonNullMutableLiveData"
+    }
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
