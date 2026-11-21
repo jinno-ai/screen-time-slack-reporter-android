@@ -58,6 +58,15 @@ android {
             }
         }
     }
+
+    lint {
+        // Bundled androidx/compose lint detectors crash with
+        // IncompatibleClassChangeError under K2 UAST (analysis-api
+        // version skew between AGP 8.7 lint and the detector jars).
+        // The project does not use MutableLiveData so the check is
+        // inapplicable anyway.
+        disable += setOf("NullSafeMutableLiveData", "RememberInComposition")
+    }
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
